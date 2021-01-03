@@ -21,11 +21,14 @@ public class WebFluxReactiveApplication {
     @Bean
     CommandLineRunner start(SocieteRepository societeRepository, TransactionRepository transactionRepository) {
         return args -> {
-            Stream.of("SG", "HSBC", "BOURSORAMA", "AXA").forEach(bank -> {
-                societeRepository.save(new Societe(bank, bank, 100 + Math.random() * 900)).subscribe(societe -> {
-                    System.out.println(societe.toString());
+            societeRepository.deleteAll().subscribe(null, null, ()-> {
+                Stream.of("A", "B", "C", "D").forEach(bank -> {
+                    societeRepository.save(new Societe(bank, bank, 100 + Math.random() * 900)).subscribe(societe -> {
+                        System.out.println(societe.toString());
+                    });
                 });
             });
+            System.out.println("....... passe pour éxécuter ce bloc, non bloquant");
         };
     }
 
