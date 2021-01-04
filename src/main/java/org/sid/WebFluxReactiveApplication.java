@@ -18,35 +18,38 @@ public class WebFluxReactiveApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebFluxReactiveApplication.class, args);
     }
-
-    // Bean de test au démarrage de l'application
     @Bean
-    CommandLineRunner start(SocieteRepository societeRepository, TransactionRepository transactionRepository) {
-        return args -> {
-            societeRepository.deleteAll().subscribe(null, null, () -> {
-                Stream.of("A", "B", "C", "D").forEach(bank -> {
-                    societeRepository.save(new Societe(bank, bank, 100 + Math.random() * 900)).subscribe(societe -> {
-                        System.out.println(societe.toString());
-                    });
+    CommandLineRunner start(SocieteRepository societeRepository,
+                            TransactionRepository transactionRepository){
+        return args->{
+            societeRepository.deleteAll().subscribe(null,null,()->{
+                Stream.of("SG","AWB","BMCE","AXA").forEach(s->{
+                    societeRepository.save(new Societe(s,s,100+Math.random()*900))
+                            .subscribe(soc->{
+                                System.out.println(soc.toString());
+                            });
                 });
-                transactionRepository.deleteAll().subscribe(null, null, ()-> {
-                    Stream.of("A", "B", "C", "D").forEach(bank -> {
-                        societeRepository.findById(bank).subscribe(soc -> {
-                            for (int i = 0; i < 10; i++) {
-                                Transaction transaction = new Transaction();
+                transactionRepository.deleteAll().subscribe(null,null,()->{
+                    Stream.of("SG","AWB","BMCE","AXA").forEach(s->{
+                        societeRepository.findById(s).subscribe(soc->{
+                            for (int i = 0; i <10 ; i++) {
+                                Transaction transaction=new Transaction();
                                 transaction.setInstant(Instant.now());
-                                transaction.setPrice(soc.getPrice() * (1 + (Math.random() * 12 - 6) / 100));
                                 transaction.setSociete(soc);
-                                transactionRepository.save(transaction).subscribe(t -> {
-                                    System.out.println("transaction => " + t.toString());
+                                transaction.setPrice(soc.getPrice()*(1+(Math.random()*12-6)/100));
+                                transactionRepository.save(transaction).subscribe(t->{
+                                    System.out.println(t.toString());
                                 });
                             }
                         });
+
                     });
                 });
+
+
             });
-            System.out.println("....... passe pour éxécuter ce bloc, non bloquant");
+            System.out.println("......");
+
         };
     }
-
 }
